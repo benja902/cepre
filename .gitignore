@@ -1,0 +1,24 @@
+# Dependencias
+node_modules
+
+# Build
+dist
+
+# Variables de entorno (NUNCA subir)
+.env
+.env.local
+.env*.local
+
+# Datos crudos / scripts de carga
+datos_crudos
+semana_01.json
+
+# Archivos temporales de Claude
+tmpclaude-*
+fix_prompt.js
+fix_prompt.cjs
+fix2.cjs
+
+# Logs
+*.log
+npm-debug.log*
