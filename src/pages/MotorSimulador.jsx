@@ -80,22 +80,40 @@ export default function MotorSimulador() {
     setLoading(true)
     setError(null)
     try {
-      const { data, error: err } = await supabase
-        .from('preguntas')
-        .select(
-          'id, semana_id, curso_id, texto_pregunta, opcion_a, opcion_b, opcion_c, opcion_d, opcion_e, clave_oficial, clave_corregida, hay_error_oficial, explicacion_paso_a_paso'
-        )
-        .eq('semana_id', sId)
-        .in('curso_id', cIds)
-        .order('curso_id', { ascending: true })
-        .order('id',       { ascending: true })
+      const [preguntasRes, cursosRes] = await Promise.all([
+        supabase
+          .from('preguntas')
+          .select(
+            'id, semana_id, curso_id, texto_pregunta, opcion_a, opcion_b, opcion_c, opcion_d, opcion_e, clave_oficial, clave_corregida, hay_error_oficial, explicacion_paso_a_paso'
+          )
+          .eq('semana_id', sId)
+          .in('curso_id', cIds)
+          .order('curso_id', { ascending: true })
+          .order('id',       { ascending: true }),
+        supabase
+          .from('cursos')
+          .select('id, nombre')
+          .in('id', cIds),
+      ])
 
-      if (err) throw err
-      if (!data || data.length === 0) {
+      if (preguntasRes.error) throw preguntasRes.error
+      if (cursosRes.error)   throw cursosRes.error
+
+      if (!preguntasRes.data || preguntasRes.data.length === 0) {
         setError('No se encontraron preguntas para esta semana y los cursos seleccionados. Verifica los datos en Supabase.')
         setLoading(false)
         return
       }
+
+      // Mapa id → nombre de curso para enriquecer cada pregunta
+      const courseMap = Object.fromEntries(
+        (cursosRes.data || []).map((c) => [String(c.id), c.nombre])
+      )
+      const data = preguntasRes.data.map((q) => ({
+        ...q,
+        curso_nombre: courseMap[String(q.curso_id)] || null,
+      }))
+
       setQuestions(data)
       const totalSecs = data.length * SECONDS_PER_QUESTION
       setSecondsLeft(totalSecs)
