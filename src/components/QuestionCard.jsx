@@ -1,3 +1,5 @@
+import QuestionText from './QuestionText'
+
 /**
  * QuestionCard — renderiza una pregunta con sus alternativas A–E
  * @param {Object} question
@@ -38,9 +40,7 @@ export default function QuestionCard({ question, selected, onSelect, index, tota
           </div>
         )}
 
-        <p className="text-white text-base font-medium leading-relaxed">
-          {question.texto_pregunta}
-        </p>
+        <QuestionText text={question.texto_pregunta} theme="dark" />
       </div>
 
       {/* Options */}

@@ -1,4 +1,5 @@
 import TutorIA from './TutorIA'
+import QuestionText from './QuestionText'
 
 export default function ResultCard({ detail, index }) {
   const {
@@ -44,7 +45,7 @@ export default function ResultCard({ detail, index }) {
       </div>
 
       <div className='p-5 space-y-4'>
-        <p className='text-gray-800 text-sm font-medium leading-relaxed'>{question.texto_pregunta}</p>
+        <QuestionText text={question.texto_pregunta} theme="light" />
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm'>
           <div className={'rounded-xl px-4 py-3 border ' + answerBg}>
