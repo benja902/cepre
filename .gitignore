@@ -22,3 +22,5 @@ fix2.cjs
 # Logs
 *.log
 npm-debug.log*
+
+.vercel

@@ -20,7 +20,7 @@ export default function MotorSimulador() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [semanaId, setSemanaId] = useState(null)
-  const [cursoId, setCursoId] = useState(null)
+  const [cursoIds, setCursoIds] = useState(null)  // array de ids
   const [finished, setFinished] = useState(false)
 
   // Bootstrap: intenta restaurar sesión o tomar datos de router state
@@ -28,15 +28,22 @@ export default function MotorSimulador() {
     const routerState = location.state
     const session = loadSession()
 
-    if (routerState?.semanaId && routerState?.cursoId) {
+    if (routerState?.semanaId && (routerState?.cursoIds || routerState?.cursoId)) {
       // Llegamos desde el dashboard
+      // Backward compat: cursoId string → wrap en array
+      const cIds = routerState.cursoIds
+        ? routerState.cursoIds.map(String)
+        : [String(routerState.cursoId)]
       setSemanaId(routerState.semanaId)
-      setCursoId(routerState.cursoId)
-      fetchQuestions(routerState.semanaId, routerState.cursoId)
-    } else if (session?.semanaId && session?.cursoId) {
+      setCursoIds(cIds)
+      fetchQuestions(routerState.semanaId, cIds)
+    } else if (session?.semanaId && (session?.cursoIds || session?.cursoId)) {
       // Reload: restaurar desde sessionStorage
+      const cIds = session.cursoIds
+        ? session.cursoIds.map(String)
+        : [String(session.cursoId)]
       setSemanaId(session.semanaId)
-      setCursoId(session.cursoId)
+      setCursoIds(cIds)
       setQuestions(session.questions || [])
       setAnswersById(session.answersById || {})
       setCurrentIdx(session.currentIdx || 0)
@@ -51,16 +58,16 @@ export default function MotorSimulador() {
 
   // Persistir en sessionStorage cada vez que cambia el estado relevante
   useEffect(() => {
-    if (!semanaId || !cursoId || loading) return
+    if (!semanaId || !cursoIds || loading) return
     saveSession({
       semanaId,
-      cursoId,
+      cursoIds,
       questions,
       answersById,
       currentIdx,
       secondsLeft,
     })
-  }, [questions, answersById, currentIdx, secondsLeft, semanaId, cursoId, loading])
+  }, [questions, answersById, currentIdx, secondsLeft, semanaId, cursoIds, loading])
 
   // Auto-finalizar cuando el timer llega a 0
   useEffect(() => {
@@ -69,7 +76,7 @@ export default function MotorSimulador() {
     }
   }, [secondsLeft, loading, questions.length, finished])
 
-  async function fetchQuestions(sId, cId) {
+  async function fetchQuestions(sId, cIds) {
     setLoading(true)
     setError(null)
     try {
@@ -79,12 +86,13 @@ export default function MotorSimulador() {
           'id, semana_id, curso_id, texto_pregunta, opcion_a, opcion_b, opcion_c, opcion_d, opcion_e, clave_oficial, clave_corregida, hay_error_oficial, explicacion_paso_a_paso'
         )
         .eq('semana_id', sId)
-        .eq('curso_id', cId)
-        .order('id', { ascending: true })
+        .in('curso_id', cIds)
+        .order('curso_id', { ascending: true })
+        .order('id',       { ascending: true })
 
       if (err) throw err
       if (!data || data.length === 0) {
-        setError('No se encontraron preguntas para esta semana y curso. Verifica los datos en Supabase.')
+        setError('No se encontraron preguntas para esta semana y los cursos seleccionados. Verifica los datos en Supabase.')
         setLoading(false)
         return
       }
