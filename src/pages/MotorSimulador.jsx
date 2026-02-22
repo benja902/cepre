@@ -6,7 +6,7 @@ import QuestionCard from '../components/QuestionCard'
 import { supabase } from '../lib/supabaseClient'
 import { saveSession, loadSession } from '../utils/storage'
 
-const SECONDS_PER_QUESTION = 90
+const SECONDS_PER_QUESTION = 108  // 3 h para 100 preguntas → 10 800 s / 100
 
 export default function MotorSimulador() {
   const navigate = useNavigate()

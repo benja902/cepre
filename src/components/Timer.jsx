@@ -26,13 +26,16 @@ export default function Timer({ secondsLeft, onTick, active }) {
     return () => clearInterval(intervalRef.current)
   }, [active])
 
-  const minutes = Math.floor(secondsLeft / 60)
+  const hours   = Math.floor(secondsLeft / 3600)
+  const minutes = Math.floor((secondsLeft % 3600) / 60)
   const seconds = secondsLeft % 60
-  const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 
-  const pct = secondsLeft
-  const isLow = secondsLeft <= 60
-  const isCritical = secondsLeft <= 30
+  const display = hours > 0
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+    : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+
+  const isLow      = secondsLeft <= 600   // últimos 10 min → ámbar
+  const isCritical = secondsLeft <= 300   // últimos  5 min → rojo
 
   return (
     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-mono font-semibold border transition-colors ${
