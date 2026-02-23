@@ -1,13 +1,5 @@
 import QuestionText from './QuestionText'
 
-/**
- * QuestionCard — renderiza una pregunta con sus alternativas A–E
- * @param {Object} question
- * @param {string|null} selected - clave seleccionada ("A"|"B"|...) o null
- * @param {function} onSelect - callback(clave)
- * @param {number} index - índice 0-based de la pregunta
- * @param {number} total - total de preguntas
- */
 export default function QuestionCard({ question, selected, onSelect, index, total }) {
   const options = [
     { key: 'A', text: question.opcion_a },
@@ -18,57 +10,56 @@ export default function QuestionCard({ question, selected, onSelect, index, tota
   ].filter((o) => o.text)
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-val-surface border border-val-border overflow-hidden val-clip">
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-        {/* Fila: contador + curso */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-blue-100 text-sm font-medium">
-            Pregunta {index + 1} de {total}
-          </span>
-        </div>
-
-        {/* Etiqueta de curso destacada */}
+      <div className="border-b border-val-border px-5 py-3 flex items-center justify-between bg-val-surface2 relative">
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-val-red" />
+        <span className="text-xs font-semibold tracking-widest uppercase text-val-muted">
+          Pregunta <span className="text-val-text font-bold">{index + 1}</span>
+          <span className="text-val-border mx-1">/</span>
+          {total}
+        </span>
         {question.curso_nombre && (
-          <div className="mb-2">
-            <span className="inline-flex items-center gap-1.5 bg-white bg-opacity-20 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-lg">
-              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              {question.curso_nombre}
-            </span>
-          </div>
+          <span className="flex items-center gap-1.5 bg-val-red bg-opacity-15 border border-val-red border-opacity-40 text-val-red text-xs font-bold uppercase tracking-widest px-2.5 py-0.5">
+            <span className="w-1.5 h-1.5 bg-val-red rounded-full" />
+            {question.curso_nombre}
+          </span>
         )}
+      </div>
 
+      {/* Question text */}
+      <div className="px-5 pt-4 pb-3 border-b border-val-border border-opacity-50">
         <QuestionText text={question.texto_pregunta} theme="dark" />
       </div>
 
       {/* Options */}
-      <div className="p-5 space-y-2.5">
+      <div className="p-4 space-y-2">
         {options.map((opt) => {
           const isSelected = selected === opt.key
           return (
             <button
               key={opt.key}
               onClick={() => onSelect(opt.key)}
-              className={`w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${
+              className={`w-full text-left flex items-start gap-3 px-3 py-2.5 border transition-all duration-100 focus:outline-none val-clip-btn-sm ${
                 isSelected
-                  ? 'border-blue-500 bg-blue-50 text-blue-900'
-                  : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50 text-gray-800'
+                  ? 'border-val-red bg-val-red bg-opacity-10 text-val-text'
+                  : 'border-val-border bg-val-bg hover:border-val-red hover:border-opacity-60 hover:bg-val-surface2 text-val-text'
               }`}
             >
-              <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors ${
+              <span className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors border ${
                 isSelected
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-500'
+                  ? 'bg-val-red border-val-red text-white'
+                  : 'bg-val-surface2 border-val-border text-val-muted'
               }`}>
                 {opt.key}
               </span>
-              <span className="pt-0.5 text-sm leading-relaxed">{opt.text}</span>
+              <span className="pt-0.5 text-sm leading-relaxed font-medium">{opt.text}</span>
             </button>
           )
         })}
       </div>
+
     </div>
   )
 }

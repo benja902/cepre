@@ -6,145 +6,142 @@ import { scoreAttempt } from '../utils/scoring'
 import { loadSession, clearSession } from '../utils/storage'
 
 export default function ResultadosFeedback() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate  = useNavigate()
+  const location  = useLocation()
 
-  // Intentar obtener datos del router state; si no, del sessionStorage
   const { questions, answersById, autoFinished } = useMemo(() => {
-    if (location.state?.questions) {
-      return location.state
-    }
+    if (location.state?.questions) return location.state
     const session = loadSession()
-    if (session?.questions) {
-      return { questions: session.questions, answersById: session.answersById || {}, autoFinished: false }
-    }
+    if (session?.questions) return { questions: session.questions, answersById: session.answersById || {}, autoFinished: false }
     return { questions: null, answersById: {}, autoFinished: false }
   }, [])
 
-  // Si no hay datos, redirigir al dashboard
-  useEffect(() => {
-    if (!questions) {
-      navigate('/', { replace: true })
-    }
-  }, [questions])
+  useEffect(() => { if (!questions) navigate('/', { replace: true }) }, [questions])
 
   const { correctCount, total, scorePct, details } = useMemo(() => {
     if (!questions) return { correctCount: 0, total: 0, scorePct: 0, details: [] }
     return scoreAttempt(questions, answersById)
   }, [questions, answersById])
 
-  function handleBack() {
-    clearSession()
-    navigate('/')
-  }
-
+  function handleBack() { clearSession(); navigate('/') }
   if (!questions) return null
 
   const answeredCount = Object.keys(answersById).filter((id) =>
     questions.some((q) => String(q.id) === String(id))
   ).length
-  const unanswered = total - answeredCount
+  const unanswered  = total - answeredCount
+  const incorrectCount = total - correctCount - unanswered
 
-  const scoreLabel =
-    scorePct >= 80
-      ? { text: 'Excelente', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-300' }
-      : scorePct >= 60
-      ? { text: 'Aprobado', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-300' }
-      : { text: 'Por mejorar', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-300' }
+  const rank =
+    scorePct >= 80 ? { label: 'EXCELENTE', color: 'text-val-green',   border: 'border-val-green',  bar: '#3FB549', glow: 'shadow-val-green' }
+    : scorePct >= 60 ? { label: 'APROBADO',   color: 'text-val-gold',    border: 'border-val-gold',   bar: '#F6B73C', glow: '' }
+    :                  { label: 'POR MEJORAR', color: 'text-val-red',     border: 'border-val-red',    bar: '#FF4655', glow: '' }
 
   return (
     <Layout>
-      {/* Banner de resultado */}
-      <div className="mb-8">
-        {autoFinished && (
-          <div className="mb-4 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 text-sm text-amber-800 font-medium text-center">
-            El tiempo se agotó. El simulador se finalizó automáticamente.
+      {autoFinished && (
+        <div className="mb-5 border border-val-gold border-opacity-60 bg-val-surface px-4 py-3 text-sm text-val-gold tracking-wide uppercase font-semibold flex items-center gap-2 val-clip-sm">
+          <div className="w-1.5 h-1.5 bg-val-gold" />
+          Tiempo agotado — Simulacro finalizado autom&#xE1;ticamente
+        </div>
+      )}
+
+      {/* ── MATCH SUMMARY banner ─────────────────────────────────────── */}
+      <div className={`bg-val-surface border ${rank.border} border-opacity-60 val-clip mb-8 overflow-hidden relative`}>
+        <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: rank.bar }} />
+        <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: rank.bar }} />
+
+        <div className="px-6 py-2 border-b border-val-border">
+          <span className="text-xs tracking-widest uppercase font-bold text-val-muted">// RESUMEN DEL SIMULACRO</span>
+        </div>
+
+        <div className="p-6 flex flex-col sm:flex-row items-center gap-6">
+          {/* Score ring */}
+          <div className="relative w-28 h-28 flex-shrink-0">
+            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#2B3541" strokeWidth="8" />
+              <circle cx="50" cy="50" r="40" fill="none" stroke={rank.bar} strokeWidth="8"
+                strokeDasharray={`${(scorePct / 100) * 251.3} 251.3`} strokeLinecap="butt" />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-3xl font-bold font-mono leading-none ${rank.color}`}>{scorePct}</span>
+              <span className="text-xs text-val-muted tracking-widest">%</span>
+            </div>
           </div>
-        )}
 
-        <div className={`rounded-2xl border-2 ${scoreLabel.border} ${scoreLabel.bg} p-6 sm:p-8`}>
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Círculo de puntuación */}
-            <div className="relative w-28 h-28 flex-shrink-0">
-              <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="10" />
-                <circle
-                  cx="50" cy="50" r="40" fill="none"
-                  stroke={scorePct >= 80 ? '#10b981' : scorePct >= 60 ? '#3b82f6' : '#ef4444'}
-                  strokeWidth="10"
-                  strokeDasharray={`${(scorePct / 100) * 251.3} 251.3`}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-2xl font-extrabold ${scoreLabel.color}`}>{scorePct}%</span>
-              </div>
+          {/* Stats */}
+          <div className="flex-1 text-center sm:text-left space-y-3">
+            <h2 className={`text-3xl font-bold tracking-widest uppercase ${rank.color}`}>{rank.label}</h2>
+            <p className="text-val-muted text-sm tracking-wide">
+              <span className="text-val-text font-bold text-lg">{correctCount}</span>
+              <span className="mx-1">/</span>
+              <span className="text-val-text font-bold text-lg">{total}</span>
+              {' '}respuestas correctas
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              <ScoreBadge value={correctCount}   label="Correctas"    color="green" />
+              <ScoreBadge value={incorrectCount} label="Incorrectas"  color="red"   />
+              {unanswered > 0 && <ScoreBadge value={unanswered} label="Sin resp." color="muted" />}
             </div>
+          </div>
 
-            {/* Texto y stats */}
-            <div className="text-center sm:text-left">
-              <h2 className={`text-2xl font-extrabold ${scoreLabel.color} mb-1`}>
-                {scoreLabel.text}
-              </h2>
-              <p className="text-gray-700 text-sm mb-4">
-                Obtuviste <span className="font-bold text-gray-900">{correctCount}</span> de{' '}
-                <span className="font-bold text-gray-900">{total}</span> respuestas correctas.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-                <StatBadge label="Correctas" value={correctCount} color="emerald" />
-                <StatBadge label="Incorrectas" value={total - correctCount - unanswered} color="red" />
-                {unanswered > 0 && (
-                  <StatBadge label="Sin responder" value={unanswered} color="gray" />
-                )}
-              </div>
-            </div>
+          {/* Back button */}
+          <button onClick={handleBack}
+            className="flex items-center gap-2 border border-val-border bg-val-surface2 hover:border-val-red hover:text-val-red text-val-muted font-semibold text-xs px-5 py-2.5 val-clip-btn-sm tracking-widest uppercase transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Dashboard
+          </button>
+        </div>
 
-            <div className="sm:ml-auto">
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 bg-white border-2 border-gray-200 hover:border-blue-400 text-gray-700 hover:text-blue-700 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Volver al dashboard
-              </button>
-            </div>
+        {/* XP bar */}
+        <div className="px-6 py-3 border-t border-val-border bg-val-bg">
+          <div className="flex items-center justify-between text-xs text-val-muted tracking-widest uppercase mb-1.5">
+            <span>Rendimiento</span>
+            <span style={{ color: rank.bar }}>{scorePct}%</span>
+          </div>
+          <div className="h-1.5 bg-val-surface2 w-full">
+            <div className="h-1.5 transition-all duration-700" style={{ width: `${scorePct}%`, background: rank.bar }} />
           </div>
         </div>
       </div>
 
-      {/* Detalle por pregunta */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-bold text-gray-900">Detalle por pregunta</h3>
+      {/* ── Detalle por pregunta ─────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-0.5 h-5 bg-val-red" />
+          <h3 className="text-sm font-bold tracking-widest uppercase text-val-muted">Detalle por pregunta</h3>
+        </div>
         {details.map((detail, idx) => (
           <ResultCard key={detail.question.id} detail={detail} index={idx} />
         ))}
       </div>
 
-      {/* Botón final */}
+      {/* ── CTA final ────────────────────────────────────────────────── */}
       <div className="mt-8 text-center">
-        <button
-          onClick={handleBack}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors shadow-sm"
-        >
-          Nuevo simulacro
+        <button onClick={handleBack}
+          className="inline-flex items-center gap-3 bg-val-red hover:bg-opacity-90 text-white font-bold px-8 py-3 val-clip-btn tracking-widest uppercase text-sm transition-opacity">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Nuevo Simulacro
         </button>
       </div>
     </Layout>
   )
 }
 
-function StatBadge({ label, value, color }) {
-  const colors = {
-    emerald: 'bg-emerald-100 text-emerald-700',
-    red: 'bg-red-100 text-red-700',
-    gray: 'bg-gray-100 text-gray-600',
+function ScoreBadge({ value, label, color }) {
+  const styles = {
+    green: 'border-val-green border-opacity-50 text-val-green bg-val-green-dim',
+    red:   'border-val-red   border-opacity-50 text-val-red   bg-val-red-dim',
+    muted: 'border-val-border text-val-muted bg-val-surface2',
   }
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${colors[color]}`}>
-      <span className="text-base font-extrabold">{value}</span>
-      <span className="font-normal">{label}</span>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 border text-xs font-bold tracking-widest uppercase ${styles[color]}`}>
+      <span className="text-sm font-bold">{value}</span>
+      {label}
     </span>
   )
 }

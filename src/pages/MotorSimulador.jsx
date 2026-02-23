@@ -153,8 +153,8 @@ export default function MotorSimulador() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-gray-500">Cargando preguntas...</p>
+          <div className="w-12 h-12 border-4 border-val-border border-t-val-red rounded-full animate-spin" />
+          <p className="text-val-muted">Cargando preguntas...</p>
         </div>
       </Layout>
     )
@@ -163,12 +163,12 @@ export default function MotorSimulador() {
   if (error) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto mt-16 bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-          <p className="text-red-700 font-semibold mb-2">No se pudo cargar el simulador</p>
-          <p className="text-red-600 text-sm mb-4">{error}</p>
+        <div className="max-w-md mx-auto mt-16 bg-val-surface border border-val-border val-clip p-6 text-center">
+          <p className="text-val-red font-semibold mb-2">No se pudo cargar el simulador</p>
+          <p className="text-val-red text-sm mb-4">{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            className="bg-val-red hover:opacity-90 text-white text-sm font-semibold px-4 py-2 val-clip-btn tracking-widest uppercase transition-opacity"
           >
             Volver al dashboard
           </button>
@@ -182,15 +182,15 @@ export default function MotorSimulador() {
       {/* Barra de control */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-gray-700">
+          <span className="text-sm font-semibold text-val-text">
             Respondidas: {' '}
-            <span className="text-blue-600">{answeredCount}</span>
-            <span className="text-gray-400">/{questions.length}</span>
+            <span className="text-val-red">{answeredCount}</span>
+            <span className="text-val-muted">/{questions.length}</span>
           </span>
           {/* Barra de progreso */}
-          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-24 h-2 bg-val-surface2 overflow-hidden">
             <div
-              className="h-2 bg-blue-500 rounded-full transition-all duration-300"
+              className="h-2 bg-val-red transition-all duration-300"
               style={{ width: `${(answeredCount / questions.length) * 100}%` }}
             />
           </div>
@@ -204,7 +204,7 @@ export default function MotorSimulador() {
           />
           <button
             onClick={() => handleFinish(false)}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
+            className="bg-val-red hover:opacity-90 text-white text-sm font-semibold px-4 py-2 val-clip-btn tracking-widest uppercase transition-opacity shadow-sm"
           >
             Finalizar
           </button>
@@ -214,8 +214,8 @@ export default function MotorSimulador() {
       <div className="flex gap-6">
         {/* Panel de navegación */}
         <aside className="hidden md:block w-36 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-3 sticky top-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
+          <div className="bg-val-surface border border-val-border val-clip p-3 sticky top-4">
+            <p className="text-xs font-semibold text-val-muted uppercase tracking-wide mb-3 text-center">
               Preguntas
             </p>
             <div className="grid grid-cols-4 gap-1.5">
@@ -226,12 +226,12 @@ export default function MotorSimulador() {
                   <button
                     key={q.id}
                     onClick={() => setCurrentIdx(idx)}
-                    className={`w-full aspect-square rounded-lg text-xs font-semibold transition-all ${
+                    className={`w-full aspect-square text-xs font-semibold transition-all ${
                       isCurrent
-                        ? 'bg-blue-600 text-white shadow-sm scale-105'
+                        ? 'bg-val-red text-white scale-105'
                         : answered
-                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-val-green-dim text-val-green border border-val-green'
+                        : 'bg-val-surface2 text-val-muted hover:bg-val-surface'
                     }`}
                     title={`Pregunta ${idx + 1}${answered ? ' (respondida)' : ''}`}
                   >
@@ -260,7 +260,7 @@ export default function MotorSimulador() {
             <button
               onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))}
               disabled={currentIdx === 0}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-val-muted hover:text-val-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -277,12 +277,12 @@ export default function MotorSimulador() {
                   <button
                     key={q.id}
                     onClick={() => setCurrentIdx(idx)}
-                    className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
+                    className={`w-8 h-8 text-xs font-semibold transition-all ${
                       isCurrent
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-val-red text-white'
                         : answered
-                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-                        : 'bg-gray-100 text-gray-600'
+                        ? 'bg-val-green-dim text-val-green border border-val-green'
+                        : 'bg-val-surface2 text-val-muted'
                     }`}
                   >
                     {idx + 1}
@@ -294,7 +294,7 @@ export default function MotorSimulador() {
             <button
               onClick={() => setCurrentIdx((i) => Math.min(questions.length - 1, i + 1))}
               disabled={currentIdx === questions.length - 1}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-val-muted hover:text-val-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               Siguiente
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

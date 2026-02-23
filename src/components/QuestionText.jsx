@@ -29,14 +29,10 @@ function classifyLine(line) {
 
 /**
  * @param {string} text - texto de la pregunta (con \n reales)
- * @param {'light'|'dark'} theme
- *   'dark'  → texto sobre fondo azul (header de QuestionCard)
- *   'light' → texto sobre fondo blanco (ResultCard / feedback)
+ * @param {'light'|'dark'} theme - reservado para compatibilidad, actualmente no usado
  */
 export default function QuestionText({ text, theme = 'dark' }) {
   if (!text) return null
-
-  const isDark = theme === 'dark'
 
   const lines = text.split('\n')
   const elements = []
@@ -48,10 +44,10 @@ export default function QuestionText({ text, theme = 'dark' }) {
       <ul key={'ul-' + key} className="space-y-1 pl-1">
         {itemBuffer.map((item, i) => (
           <li key={i} className="flex gap-2 items-start">
-            <span className={`flex-shrink-0 font-bold text-sm min-w-[2rem] ${isDark ? 'text-blue-200' : 'text-blue-500'}`}>
+            <span className="flex-shrink-0 font-bold text-sm min-w-[2rem] text-val-muted font-mono tracking-wider">
               {item.label}
             </span>
-            <span className={`text-sm leading-relaxed ${isDark ? 'text-white' : 'text-gray-800'}`}>
+            <span className="text-sm leading-relaxed text-val-text">
               {item.content}
             </span>
           </li>
@@ -78,11 +74,7 @@ export default function QuestionText({ text, theme = 'dark' }) {
       elements.push(
         <div
           key={i}
-          className={`rounded-lg px-3 py-2 text-sm italic ${
-            isDark
-              ? 'bg-white bg-opacity-10 text-blue-100'
-              : 'bg-blue-50 border border-blue-100 text-blue-700'
-          }`}
+          className="border-l-2 border-val-red pl-3 py-1.5 text-sm italic text-val-muted bg-val-surface2"
         >
           {node.content}
         </div>
@@ -90,10 +82,7 @@ export default function QuestionText({ text, theme = 'dark' }) {
     } else {
       // paragraph
       elements.push(
-        <p
-          key={i}
-          className={`text-sm leading-relaxed ${isDark ? 'text-white font-medium' : 'text-gray-800'}`}
-        >
+        <p key={i} className="text-sm leading-relaxed text-val-text">
           {node.content}
         </p>
       )
