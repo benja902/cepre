@@ -10,7 +10,8 @@ Stack: **React + Vite · Tailwind CSS · React Router DOM v7 · Supabase · Verc
 | Capa | Tecnología | Notas |
 |---|---|---|
 | Frontend | React + Vite (JS, sin TypeScript) | Sin librerías UI externas |
-| Estilos | Tailwind CSS | PostCSS + autoprefixer |
+| Estilos | Tailwind CSS | PostCSS + autoprefixer; paleta `val.*` personalizada |
+| Fuentes | Rajdhani (body) + Share Tech Mono (mono) | Google Fonts vía `<link>` en index.html |
 | Routing | React Router DOM v7 | SPA, rutas en `src/App.jsx` |
 | Base de datos | Supabase (PostgreSQL) | Cliente `@supabase/supabase-js` |
 | Deploy | Vercel | `framework: "vite"` en vercel.json |
@@ -133,20 +134,63 @@ Browser → /api/tutor (Edge Function) → GitHub Models API
 
 ---
 
+## Sistema de diseño — Estilo Valorant
+
+Toda la UI sigue una estética de videojuego inspirada en Valorant: fondo oscuro, tipografía geométrica, esquinas cortadas en diagonal y colores de acento limitados.
+
+### Paleta de colores (`tailwind.config.js`)
+
+| Token | Hex | Uso |
+|---|---|---|
+| `val-bg` | `#0F1923` | Fondo de página |
+| `val-surface` | `#1F2731` | Tarjetas, header, sidebar |
+| `val-surface2` | `#2B3541` | Fondos secundarios, hover |
+| `val-border` | `#3D4956` | Bordes y divisores |
+| `val-red` | `#FF4655` | Acento principal, botones CTA, barras de progreso |
+| `val-red-dim` | `#7B1E26` | Acento atenuado, fondos incorrectos |
+| `val-gold` | `#F6B73C` | Advertencias, timer ámbar |
+| `val-text` | `#ECE8E1` | Texto principal |
+| `val-muted` | `#768079` | Texto secundario, etiquetas |
+| `val-green` | `#3FB549` | Correcto, aprobado |
+| `val-green-dim` | `#1A3D1D` | Fondo respuestas correctas |
+
+### Clip-path angulares (`src/index.css`)
+
+```css
+.val-clip       /* esquina superior-derecha cortada 14px — tarjetas grandes */
+.val-clip-sm    /* esquina superior-derecha cortada 8px  — chips y badges */
+.val-clip-btn   /* ambas esquinas opuestas cortadas 10px — botones normales */
+.val-clip-btn-sm /* ambas esquinas opuestas cortadas 7px  — botones pequeños/opciones */
+```
+
+### Componentes rediseñados
+
+| Componente | Descripción visual |
+|---|---|
+| `Layout.jsx` | Header oscuro con línea roja superior + logo `val-clip-sm` |
+| `Timer.jsx` | HUD monospace; blanco → ámbar (≤10 min) → rojo pulsante (≤5 min) |
+| `QuestionCard.jsx` | Tarjeta `val-clip` con banda roja izquierda; opciones con badge cuadrado |
+| `QuestionText.jsx` | Etiquetas monospace `text-val-muted`; contexto con borde-l rojo |
+| `ResultCard.jsx` | Card dark con indicador verde/rojo/gris según resultado |
+| `ResultadosFeedback.jsx` | Match summary con rank (EXCELENTE / APROBADO / POR MEJORAR) y barra XP |
+| `DashboardSemanal.jsx` | Lobby con pasos `AgentCard` numerados `01` `02` `03` |
+
+---
+
 ## QuestionText — renderizado estructurado
 
 Componente que parsea el campo `texto_pregunta` con `\n` reales del JSON:
 
 | Patrón detectado | Renderizado |
 |---|---|
-| `I.` / `II.` / `III.` | Ítem con etiqueta azul y sangría |
-| `a.` / `b.` / `a)` | Ítem con etiqueta azul y sangría |
+| `I.` / `II.` / `III.` | Ítem con etiqueta `val-muted` monospace y sangría |
+| `a.` / `b.` / `a)` | Ítem con etiqueta `val-muted` monospace y sangría |
 | `1.` / `2.` | Ítem numerado con sangría |
-| `[texto entre corchetes]` | Bloque de contexto gris/azul itálico |
+| `[texto entre corchetes]` | Bloque de contexto con borde-l rojo itálico (`val-surface2`) |
 | Línea vacía | Separador de 6px |
-| Texto normal | Párrafo |
+| Texto normal | Párrafo `val-text` |
 
-Soporta `theme="dark"` (sobre fondo azul en QuestionCard) y `theme="light"` (sobre blanco en ResultCard).
+El prop `theme` se conserva por compatibilidad pero ya no afecta estilos — toda la app usa fondo oscuro.
 
 **Prompt para formatear JSONs sin `\n`** — pegar en Claude/ChatGPT:
 ```
@@ -223,6 +267,16 @@ git push origin main        # Vercel despliega automáticamente
 ### Tutor IA
 - Token `GITHUB_TOKEN` movido a server-side (era `VITE_GITHUB_TOKEN` y se exponía en el bundle)
 - Edge Function como proxy directo — pipe de `upstream.body` sin reconstruir SSE
+
+### Rediseño UI — Estilo Valorant
+- Paleta `val.*` en `tailwind.config.js` (11 tokens de color)
+- Fuentes Rajdhani + Share Tech Mono vía Google Fonts en `index.html`
+- Clases CSS `val-clip*` con `clip-path: polygon(...)` para esquinas angulares
+- Todos los componentes migrados de colores Tailwind genéricos a tokens `val-*`
+- `DashboardSemanal`: `AgentCard` con pasos numerados estilo game lobby
+- `ResultadosFeedback`: match summary con rank tier y barra XP animada
+- `QuestionText`: etiquetas pasaron de `text-blue-200` a `text-val-muted font-mono`; contexto de fondo azul a borde-l rojo
+- `theme` prop en `QuestionText` conservado por compatibilidad pero unificado a dark
 
 ### Multi-curso
 - `DashboardSemanal`: selector toggle con `cursosDisponibles` (Set desde query a `preguntas`)
