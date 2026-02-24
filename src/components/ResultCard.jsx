@@ -17,14 +17,19 @@ export default function ResultCard({ detail, index }) {
   ].filter((o) => o.text)
 
   const getOptionText = (key) => options.find((o) => o.key === key)?.text || key
+  const isAnulada = claveCorregida && !['A','B','C','D','E'].includes(claveCorregida)
 
   return (
-    <div className={`bg-val-surface border overflow-hidden val-clip ${isCorrect ? 'border-val-green' : 'border-val-red'}`}>
+    <div className={`bg-val-surface border overflow-hidden val-clip ${isAnulada ? 'border-val-gold' : isCorrect ? 'border-val-green' : 'border-val-red'}`}>
 
       {/* Header */}
-      <div className={`px-5 py-2.5 flex items-center gap-3 border-b ${isCorrect ? 'bg-val-green-dim border-val-green border-opacity-40' : 'bg-val-red-dim border-val-red border-opacity-40'}`}>
-        <div className={`w-7 h-7 val-clip-sm flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-val-green' : 'bg-val-red'}`}>
-          {isCorrect ? (
+      <div className={`px-5 py-2.5 flex items-center gap-3 border-b ${isAnulada ? 'bg-val-surface2 border-val-gold border-opacity-40' : isCorrect ? 'bg-val-green-dim border-val-green border-opacity-40' : 'bg-val-red-dim border-val-red border-opacity-40'}`}>
+        <div className={`w-7 h-7 val-clip-sm flex items-center justify-center flex-shrink-0 ${isAnulada ? 'bg-val-gold' : isCorrect ? 'bg-val-green' : 'bg-val-red'}`}>
+          {isAnulada ? (
+            <svg className="w-4 h-4 text-val-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
+            </svg>
+          ) : isCorrect ? (
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
@@ -34,8 +39,8 @@ export default function ResultCard({ detail, index }) {
             </svg>
           )}
         </div>
-        <span className={`font-bold tracking-widest uppercase text-sm ${isCorrect ? 'text-val-green' : 'text-val-red'}`}>
-          Pregunta {index + 1} &mdash; {isCorrect ? 'Correcta' : 'Incorrecta'}
+        <span className={`font-bold tracking-widest uppercase text-sm ${isAnulada ? 'text-val-gold' : isCorrect ? 'text-val-green' : 'text-val-red'}`}>
+          Pregunta {index + 1} &mdash; {isAnulada ? 'Anulada' : isCorrect ? 'Correcta' : 'Incorrecta'}
         </span>
         {question.curso_nombre && (
           <span className="ml-auto text-xs text-val-muted tracking-widest uppercase font-medium">
@@ -67,13 +72,20 @@ export default function ResultCard({ detail, index }) {
             )}
           </div>
 
-          <div className="px-4 py-3 border border-val-green border-opacity-40 bg-val-green-dim val-clip-sm">
-            <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-val-green">Clave corregida</p>
-            <p className="text-val-text font-semibold">
-              <span className="inline-flex items-center justify-center w-5 h-5 mr-1.5 text-xs font-bold bg-val-green text-white">{claveCorregida}</span>
-              {getOptionText(claveCorregida)}
-            </p>
-          </div>
+          {isAnulada ? (
+            <div className="px-4 py-3 border border-val-gold border-opacity-40 bg-val-surface2 val-clip-sm">
+              <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-val-gold">Clave corregida</p>
+              <p className="text-val-gold font-semibold text-sm italic">Pregunta anulada — sin clave válida</p>
+            </div>
+          ) : (
+            <div className="px-4 py-3 border border-val-green border-opacity-40 bg-val-green-dim val-clip-sm">
+              <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-val-green">Clave corregida</p>
+              <p className="text-val-text font-semibold">
+                <span className="inline-flex items-center justify-center w-5 h-5 mr-1.5 text-xs font-bold bg-val-green text-white">{claveCorregida}</span>
+                {getOptionText(claveCorregida)}
+              </p>
+            </div>
+          )}
 
           {hayError && (
             <div className="px-4 py-3 border border-val-gold border-opacity-40 bg-val-surface2 sm:col-span-2 val-clip-sm">
