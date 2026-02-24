@@ -1,4 +1,5 @@
 import QuestionText from './QuestionText'
+import BlockRenderer from './BlockRenderer'
 
 export default function QuestionCard({ question, selected, onSelect, index, total }) {
   const options = [
@@ -31,6 +32,11 @@ export default function QuestionCard({ question, selected, onSelect, index, tota
       {/* Question text */}
       <div className="px-5 pt-4 pb-3 border-b border-val-border border-opacity-50">
         <QuestionText text={question.texto_pregunta} theme="dark" />
+        {question.contenido_matematico && (
+          <div className="mt-3 border-t border-val-border border-opacity-40 pt-3">
+            <BlockRenderer blocks={question.contenido_matematico.blocks ?? question.contenido_matematico} />
+          </div>
+        )}
       </div>
 
       {/* Options */}

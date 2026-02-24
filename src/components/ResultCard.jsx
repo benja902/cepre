@@ -1,5 +1,6 @@
 import TutorIA from './TutorIA'
 import QuestionText from './QuestionText'
+import BlockRenderer from './BlockRenderer'
 
 export default function ResultCard({ detail, index }) {
   const {
@@ -46,6 +47,11 @@ export default function ResultCard({ detail, index }) {
       {/* Body */}
       <div className="p-5 space-y-4">
         <QuestionText text={question.texto_pregunta} theme="dark" />
+        {question.contenido_matematico && (
+          <div className="border-t border-val-border border-opacity-40 pt-3">
+            <BlockRenderer blocks={question.contenido_matematico.blocks ?? question.contenido_matematico} />
+          </div>
+        )}
 
         {/* Answers grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -96,7 +102,7 @@ export default function ResultCard({ detail, index }) {
               Ver explicaci&#xF3;n del solucionario
             </summary>
             <div className="mt-3 border border-val-border bg-val-bg px-4 py-3 val-clip-sm">
-              <p className="text-sm text-val-muted leading-relaxed whitespace-pre-line">{question.explicacion_paso_a_paso}</p>
+              <BlockRenderer blocks={question.explicacion_paso_a_paso} />
             </div>
           </details>
         )}

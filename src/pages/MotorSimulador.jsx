@@ -84,7 +84,7 @@ export default function MotorSimulador() {
         supabase
           .from('preguntas')
           .select(
-            'id, semana_id, curso_id, texto_pregunta, opcion_a, opcion_b, opcion_c, opcion_d, opcion_e, clave_oficial, clave_corregida, hay_error_oficial, explicacion_paso_a_paso'
+            'id, semana_id, curso_id, texto_pregunta, contenido_matematico, opcion_a, opcion_b, opcion_c, opcion_d, opcion_e, clave_oficial, clave_corregida, hay_error_oficial, explicacion_paso_a_paso'
           )
           .eq('semana_id', sId)
           .in('curso_id', cIds)
